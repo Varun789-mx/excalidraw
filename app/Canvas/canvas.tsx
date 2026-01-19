@@ -4,6 +4,7 @@ import { CanvasDrawer } from "../lib/CanvasClass";
 import { Circle, Eraser, Minus, Pen, Square, X } from "lucide-react";
 import { Shape, ShapeProp } from "../lib/Types";
 import { isShapeHit } from "./Eraser";
+import { json } from "stream/consumers";
 
 const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -111,6 +112,11 @@ const Canvas = () => {
     currentPathRef.current = [];
   }
   useEffect(() => {
+    const getlocalShapes = localStorage.getItem("shapes");
+
+    if(!getlocalShapes) { 
+      localStorage.setItem("Shapes",JSON.stringify(CurrentShapes))
+    }
     Redraw(CurrentShapes, null, false)
   }, [CurrentShapes])
 
@@ -230,7 +236,7 @@ const Canvas = () => {
         onMouseDown={HandleMouseDown}
         onMouseUp={HandleMouseUp}
         onMouseMove={HandleDrawing}
-        className={`bg-gray-900  w-screen h-screen ${isDrawing ? "cursor-crosshair" : "cursor-default"}`}
+        className={`bg-gray-900  w-screen h-screen ${isDrawing ? "cursor-crosshair" : "cursor-default"} `}
       />
       <div className="absolute top-4 left-1/2 -translate-x-1/2  bg-blend-saturation border border-gray-700 rounded-2xl">
         <div className="flex gap-4  rounded-lg shadow-lg p-2">
