@@ -15,10 +15,37 @@ const hitCircle = (circle: { x: number, y: number, radius: number }, points: { x
     const distance = Math.sqrt(dx * dx + dy * dy);
     return distance <= circle.radius + radius;
 }
+
+const hitFreeHandline = (line: { x: number, y: number }[], point: { x: number, y: number }, radius: number) => {
+    return line.some(p => {
+        const dx = p.x - point.x;
+        const dy = p.y - point.y;
+        return Math.sqrt(dx * dx + dy * dy) < radius;
+    })
+}
+const hitLine = (line: { x: number, y: number, endX: number, endY: number }, points: { x: number, y: number }, radius: number) => {
+    const numPoints = 50;
+    
+    for (let i = 0; i <= numPoints; i++) {
+        const t = i / numPoints; // Goes from 0 to 1
+        const x = line.x + t * (line.endX - line.x);
+        const y = line.y + t * (line.endY - line.y);
+        
+        const dx = points.x - x;
+        const dy = points.y - y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance <= radius) {
+            return true;
+        }
+    }
+    
+    return false;
+}
 export const isShapeHit = (
+    shapes: Shape,
     startX: number,
     startY: number,
-    shapes: Shape,
 ) => {
     const ERASER_RADIUS = 10;
     switch (shapes.type) {
@@ -27,5 +54,9 @@ export const isShapeHit = (
             break;
         case ShapeProp.circle:
             return hitCircle(shapes, { x: startX, y: startY }, ERASER_RADIUS);
+        case ShapeProp.FreeHandLine:
+            return hitFreeHandline(shapes.points, { x: startX, y: startY }, ERASER_RADIUS)
+        case ShapeProp.line:
+            return hitLine({ x: shapes.x, y: shapes.y, endX: shapes.endX, endY: shapes.endY }, { x: startX, y: startY }, ERASER_RADIUS);
     }
 }

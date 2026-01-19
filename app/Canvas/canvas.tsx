@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect, useRef, useState } from "react";
 import { CanvasDrawer } from "../lib/CanvasClass";
-import { Circle, Eraser, Minus, Square, X } from "lucide-react";
+import { Circle, Eraser, Minus, Pen, Square, X } from "lucide-react";
 import { Shape, ShapeProp } from "../lib/Types";
 import { isShapeHit } from "./Eraser";
 
@@ -23,7 +23,7 @@ const Canvas = () => {
   const [CurrentShapes, setCurrentShapes] = useState<Shape[]>([]);
   const [Camera, setCamera] = useState({ x: 0, y: 0, zoom: 1 });
   const currentPathRef = useRef<{ x: number, y: number }[]>([]);
-  const EraseRef = useRef<{ x: Number, y: number }>({ x: 0, y: 0 });
+  const EraseRef = useRef<{ x: number, y: number }>({ x: 0, y: 0 });
 
   useEffect(() => {
     if (canvasRef.current && !drawerRef.current) {
@@ -33,6 +33,7 @@ const Canvas = () => {
 
 
   function HandleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
+    console.log(SelectedShape,"From selected shape");
     isDrawingRef.current = true;
     setDrawing(true);
     startRef.current = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
@@ -44,6 +45,9 @@ const Canvas = () => {
       EraseRef.current = ({
         x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY
       })
+      shape.current = {type:ShapeProp.eraser } as Shape
+       console.log(EraseRef.current);
+      return;
     }
     switch (SelectedShape) {
       case ShapeProp.rectangle:
@@ -74,12 +78,10 @@ const Canvas = () => {
         }
         break;
       case ShapeProp.FreeHandLine: {
-        shape.current.points.push({
-          x: e.nativeEvent.offsetX,
-          y: e.nativeEvent.offsetY,
-        });
-
-        // FORCE redraw immediately
+        shape.current = {
+          type: ShapeProp.FreeHandLine,
+          points: [{ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }],
+        }
         Redraw(CurrentShapes, shape.current, true);
         return;
       }
@@ -93,6 +95,10 @@ const Canvas = () => {
     isDrawingRef.current = false;
     setDrawing(false);
     let finalShape: Shape;
+
+    if(SelectedShape === ShapeProp.eraser) { 
+      return;
+    }
     if (shape.current.type === ShapeProp.FreeHandLine) {
       finalShape = {
         type: ShapeProp.FreeHandLine,
@@ -197,11 +203,19 @@ const Canvas = () => {
         }
         break;
       case ShapeProp.FreeHandLine:
-        type: ShapeProp.FreeHandLine,
-          shape.current.points.push({
-            x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY
-          })
+        shape.current.points.push({
+          x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY
+        })
         break;
+      case ShapeProp.eraser:
+        EraseRef.current = {
+          x:e.nativeEvent.offsetX,
+          y:e.nativeEvent.offsetY,
+        }
+       setCurrentShapes(prev=> 
+        prev.filter(shape=> !isShapeHit(shape,EraseRef.current.x,EraseRef.current.y))
+       )
+       return;
     }
 
     Redraw(CurrentShapes, shape.current, isDrawingRef.current);
@@ -228,6 +242,9 @@ const Canvas = () => {
           </button>
           <button onClick={() => setSelectedShape(ShapeProp.line)} className={` p-2 ${SelectedShape === ShapeProp.line ? "bg-blue-700 rounded-lg" : ""}`}>
             <Minus />
+          </button>
+          <button onClick={() => setSelectedShape(ShapeProp.FreeHandLine)} className={` p-2 ${SelectedShape === ShapeProp.FreeHandLine ? "bg-blue-700 rounded-lg" : ""}`}>
+            <Pen />
           </button>
           <button onClick={() => setSelectedShape(ShapeProp.eraser)} className={` p-2 ${SelectedShape === ShapeProp.eraser ? "bg-blue-700 rounded-lg" : ""}`}>
             <Eraser />

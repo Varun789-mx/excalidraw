@@ -51,4 +51,8 @@ export type Shape = |
     y: number;
     endX: number;
     endY: number;
+} | {
+    type: ShapeProp.eraser,
+    x:number,
+    y:number,
 }
