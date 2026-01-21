@@ -6,10 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "ws": "bun server.ts",
+    "ws:dev": "bun --watch server.ts",
     "lint": "eslint"
   },
   "dependencies": {
     "@types/ws": "^8.18.1",
+    "ioredis": "^5.9.2",
     "lucide-react": "^0.562.0",
     "next": "16.1.2",
     "react": "19.2.3",

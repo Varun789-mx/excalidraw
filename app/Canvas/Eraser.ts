@@ -60,4 +60,3 @@ export const isShapeHit = (
             return hitLine({ x: shapes.x, y: shapes.y, endX: shapes.endX, endY: shapes.endY }, { x: startX, y: startY }, ERASER_RADIUS);
     }
 }
-

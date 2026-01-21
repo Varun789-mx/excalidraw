@@ -1,33 +1,50 @@
-import http from "http";
-//create a websocket server for getting data and sending it to the redis 
-const redisClient = createClient({ url: process.env.REDIS_URL ?? "redis://127.0.0.1:6379" });
-redisClient.on("error", (error) => console.error("Redis error:", err));
-redisClient.connect().catch((Error) => console.error("Redis connect failed:", err));
+import { IncomingMessage, request } from "http";
+import Redis from "ioredis";
+import { Duplex } from "stream";
+import http from "http"
+import { WebSocketServer } from "ws";
 
+const PORT = 5000;
+const pub = new Redis();
+const sub = new Redis();
 const wss = new WebSocketServer({ noServer: true });
 
-wss.on("connection", (ws) => {
-    ws.on("message", async (message) => {
-        const payload = typeof message === "string" ? message : message.toString();
-        try {
-            await redisClient.publish("excalidraw:updates", payload);
-        } catch (err) {
-            console.error("Failed to publish to redis:", err);
-        }
-    });
 
-    ws.send(JSON.stringify({ type: "connected" }));
-});
-
-export function attachWebsocketServer(server: any) {
-    server.on("upgrade", (req: any, socket: any, head: any) => {
-        wss.handleUpgrade(req, socket, head, (ws) => {
-            wss.emit("connection", ws, req);
-        });
-    });
+const HandleUpgrade = (request: IncomingMessage, socket: Duplex, head: Buffer) => {
+    const urlParams = new URL(request.url || "", `http://${request.headers.host}`);
+    const room = urlParams.searchParams.get("room");
+    wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit('connection', ws, request);
+    })
 }
 
-export { wss, redisClient };
-async function init() {
-    
+const initListener = () => {
+    wss.on('connection', async (ws) => {
+        ws.on('error', console.error);
+        ws.on('message', async (message) => {
+            console.log(message.toString());
+            ws.send(message.toString());
+        })
+        ws.on('close', async () => {
+            console.log('Disconnected');
+        })
+    })
 }
+
+
+const init = () => {
+    const server = http.createServer((req, res) => {
+        res.writeHead(200);
+        res.end('Web socket server running');
+    })
+
+    server.on('upgrade', (request, socket, head) => {
+        HandleUpgrade(request, socket, head);
+    })
+    initListener();
+    server.listen(PORT, () => {
+        console.log(`Server is running ws://localhost:${PORT}`);
+    })
+}
+
+init();
