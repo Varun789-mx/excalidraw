@@ -1,10 +1,9 @@
 "use client"
 import React, { useEffect, useRef, useState } from "react";
-import { CanvasDrawer } from "../lib/CanvasClass";
 import { Circle, Eraser, Minus, Pen, Square, X } from "lucide-react";
-import { Shape, ShapeProp } from "../lib/Types";
+import { Shape, ShapeProp } from "../../lib/General/Types";
 import { isShapeHit } from "./Eraser";
-import { json } from "stream/consumers";
+import { CanvasDrawer } from "@/lib/CanvasHelpers/CanvasClass";
 
 const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);

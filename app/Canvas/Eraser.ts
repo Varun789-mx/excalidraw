@@ -1,4 +1,4 @@
-import { Shape, ShapeProp } from "../lib/Types";
+import { Shape, ShapeProp } from "../../lib/General/Types";
 
 const hitRect = (rect: { x: number, y: number, width: number, height: number }, points: { x: number, y: number }, radius: number) => {
     return (

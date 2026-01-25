@@ -3,12 +3,14 @@ import Redis from "ioredis";
 import { Duplex } from "stream";
 import http from "http"
 import { WebSocketServer } from "ws";
+import { subscribe } from "diagnostics_channel";
 
 const PORT = 5000;
 const pub = new Redis();
 const sub = new Redis();
 const wss = new WebSocketServer({ noServer: true });
 const roomMap = new Map<WebSocket, string>;
+const SubscriptionSet = new set<string>();
 
 
 const HandleUpgrade = (request: IncomingMessage, socket: Duplex, head: Buffer) => {
@@ -51,6 +53,9 @@ const initRedis = () => {
         console.log(``)
     }
 }
+const Subscribe= async(room:string)=> { 
+    if(subs)
+}
 
 const init = () => {
     const server = http.createServer((req, res) => {
@@ -60,7 +65,12 @@ const init = () => {
     server.on('upgrade', (request, socket, head) => {
         HandleUpgrade(request, socket, head);
     })
-
+    sub.on('connection',async(ws)=>{
+        const room = roomMap.get(ws);
+        if(room) {
+            subscribe(room);
+        }
+    })
     sub.on('message', (channel, message) => {
         if(!room) return;
 
