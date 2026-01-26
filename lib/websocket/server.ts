@@ -4,31 +4,30 @@ import WebSocket, { WebSocketServer } from "ws";
 import http from "http"
 import Redis from "ioredis";
 
-export const pub = new Redis();
-export const sub = new Redis()
-
-
-export class Websocket {
-    //    Here we created varibles and pub and sub with their respective types
+export class WebsocketManager {
+    private static Instance: WebsocketManager;
     public wss: WebSocketServer;
+    private publisher: Redis;
+    private subscriber: Redis;
     private roomMap: Map<WebSocket, string>;
     private SubscriptionSet = new Set<string>();
     private server: http.Server;
 
-
     constructor() {
         //we initialize their values the server part is bit confusing
-        this.wss = new WebSocketServer({ noServer: true });
         this.roomMap = new Map();
-        sub.on('message', (channel, message) => {
+        this.publisher = new Redis();
+        this.subscriber = new Redis();
+        this.subscriber.on('message', (channel, message) => {
             this.BroadCast(channel, message);
         })
         this.server = http.createServer(this.HandleHttpRequest);
         this.server.on('upgrade', this.HandleUpgrade);
+        this.wss = new WebSocketServer({ noServer: true });
     }
 
     public publish(channelName: string, message: string) {
-        pub.publish(channelName, message)
+        this.publisher.publish(channelName, message)
     }
     private BroadCast(userChannel: string, message: string) {
         this.roomMap.forEach((channelName, ws) => {
@@ -44,7 +43,7 @@ export class Websocket {
 
     public Subscribe(room: string) {
         if (this.SubscriptionSet.has(room)) return;
-        sub.subscribe(room);
+        this.subscriber.subscribe(room);
         this.SubscriptionSet.add(room);
         console.log(`Subscribed to ${room}`);
     }
@@ -55,12 +54,16 @@ export class Websocket {
         this.wss.handleUpgrade(request, socket, head, (ws) => {
             if (room) this.roomMap.set(ws, room);
             this.wss.emit('connection', ws, request);
+            console.log(request.url, "request url")
         })
     }
 
     //this function returns the websocket instance
-    getsocket() {
-        return this.wss;
+    static getsocket() {
+        if(!this.Instance) { 
+            this.Instance = new WebsocketManager()
+        }
+        return this.Instance;
     }
 
     //this shows the message
@@ -69,13 +72,13 @@ export class Websocket {
         wss.on('connection', (ws) => {
             const room = this.roomMap.get(ws);
             if (room) {
-                sub.subscribe(room);
+                this.subscriber.subscribe(room);
             }
             ws.on('error', console.error);
             ws.on('message', async (message) => {
                 if (!room) return;
                 try {
-                    await pub.publish(room, JSON.stringify({
+                    await this.publisher.publish(room, JSON.stringify({
                         message: message.toString(),
                         timeStamp: Date.now(),
                     }))
@@ -86,9 +89,11 @@ export class Websocket {
             })
             ws.on('close', (code, reason) => {
                 console.log(`connection has been closed ${code} because of ${reason}`);
+                this.SubscriptionSet
             })
         })
     }
+
     //it listens on port
     public listen(port: number) {
         this.server.listen(port, () => {

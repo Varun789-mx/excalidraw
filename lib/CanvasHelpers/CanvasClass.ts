@@ -1,4 +1,3 @@
-import { Shape, ShapeProp } from "./Types";
 
 export class CanvasDrawer {
   private canvas: HTMLCanvasElement;

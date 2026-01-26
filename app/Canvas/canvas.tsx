@@ -4,6 +4,7 @@ import { Circle, Eraser, Minus, Pen, Square, X } from "lucide-react";
 import { Shape, ShapeProp } from "../../lib/General/Types";
 import { isShapeHit } from "./Eraser";
 import { CanvasDrawer } from "@/lib/CanvasHelpers/CanvasClass";
+import { useSocket } from "../context/SocketProvider";
 
 const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -20,6 +21,7 @@ const Canvas = () => {
 
   const [SelectedShape, setSelectedShape] = useState<ShapeProp>(ShapeProp.rectangle);
   const isDrawingRef = useRef(false);
+  const socket = useSocket();
   const [CurrentShapes, setCurrentShapes] = useState<Shape[]>([]);
   const [Camera, setCamera] = useState({ x: 0, y: 0, zoom: 1 });
   const currentPathRef = useRef<{ x: number, y: number }[]>([]);
@@ -122,6 +124,7 @@ const Canvas = () => {
 
   const Redraw = (currentShape: Shape[], shape: Shape | null, drawing: boolean) => {
     const drawer = drawerRef.current;
+  if(shape) socket.sendMessage(shape.toString());
     if (!drawer) return;
     drawer.clear();
     currentShape.forEach((s) => {

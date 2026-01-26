@@ -29,6 +29,10 @@ export enum ShapeProp {
     ellipse = "Ellipse",
     eraser = "Eraser",
 }
+
+export interface ISOCKETTYPE {
+    sendMessage: (msg: string) => void;
+}
 export type Shape = |
 {
     type: ShapeProp.rectangle;
@@ -53,6 +57,6 @@ export type Shape = |
     endY: number;
 } | {
     type: ShapeProp.eraser,
-    x:number,
-    y:number,
+    x: number,
+    y: number,
 }
