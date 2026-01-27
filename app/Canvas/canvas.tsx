@@ -5,12 +5,14 @@ import { Shape, ShapeProp } from "../../lib/General/Types";
 import { isShapeHit } from "./Eraser";
 import { CanvasDrawer } from "@/lib/CanvasHelpers/CanvasClass";
 import { useSocket } from "../context/SocketProvider";
+import { useShapeStore } from "../context/useShapeStore";
 
 const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const startRef = useRef({ x: 0, y: 0 });
   const [isDrawing, setDrawing] = useState(false);
   const drawerRef = useRef<CanvasDrawer | null>(null);
+  const UserName = useShapeStore((state)=>state.username);
   const shape = useRef<Shape>({
     type: ShapeProp.rectangle,
     x: 0,
@@ -22,7 +24,9 @@ const Canvas = () => {
   const [SelectedShape, setSelectedShape] = useState<ShapeProp>(ShapeProp.rectangle);
   const isDrawingRef = useRef(false);
   const socket = useSocket();
-  const [CurrentShapes, setCurrentShapes] = useState<Shape[]>([]);
+  const Shapes = useShapeStore((state) => state.Shapes);
+  const SetShapes = useShapeStore((state) => state.setShape);
+  const DeleteShapes = useShapeStore((state) => state.DeleteShape);
   const [Camera, setCamera] = useState({ x: 0, y: 0, zoom: 1 });
   const currentPathRef = useRef<{ x: number, y: number }[]>([]);
   const EraseRef = useRef<{ x: number, y: number }>({ x: 0, y: 0 });
@@ -33,9 +37,14 @@ const Canvas = () => {
     }
   }, []);
 
+  useEffect(() => {
+    Redraw(Shapes, null, false);
+  }, [Shapes]);
+  
+
 
   function HandleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
-    console.log(SelectedShape,"From selected shape");
+    console.log(SelectedShape, "From selected shape");
     isDrawingRef.current = true;
     setDrawing(true);
     startRef.current = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
@@ -47,8 +56,8 @@ const Canvas = () => {
       EraseRef.current = ({
         x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY
       })
-      shape.current = {type:ShapeProp.eraser } as Shape
-       console.log(EraseRef.current);
+      shape.current = { type: ShapeProp.eraser } as Shape
+      console.log(EraseRef.current);
       return;
     }
     switch (SelectedShape) {
@@ -84,7 +93,7 @@ const Canvas = () => {
           type: ShapeProp.FreeHandLine,
           points: [{ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }],
         }
-        Redraw(CurrentShapes, shape.current, true);
+        Redraw(Shapes, shape.current, true);
         return;
       }
     }
@@ -98,7 +107,7 @@ const Canvas = () => {
     setDrawing(false);
     let finalShape: Shape;
 
-    if(SelectedShape === ShapeProp.eraser) { 
+    if (SelectedShape === ShapeProp.eraser) {
       return;
     }
     if (shape.current.type === ShapeProp.FreeHandLine) {
@@ -106,25 +115,32 @@ const Canvas = () => {
         type: ShapeProp.FreeHandLine,
         points: [...shape.current.points]
       }
+    } else if (shape.current.type === ShapeProp.rectangle) {
+      const rect = shape.current as any;
+      const x = Math.min(rect.x, rect.x + rect.width);
+      const y = Math.min(rect.y, rect.y + rect.height);
+      const width = Math.abs(rect.width);
+      const height = Math.abs(rect.height);
+      finalShape = { ...shape.current, x, y, width, height } as Shape;
+    } else if (shape.current.type === ShapeProp.circle) {
+      const circle = shape.current as any;
+      finalShape = { ...shape.current, radius: Math.abs(circle.radius) } as Shape;
+    } else if (shape.current.type === ShapeProp.line) {
+      const line = shape.current as any;
+      const x = Math.min(line.x, line.endX);
+      const y = Math.min(line.y, line.endY);
+      const endX = Math.max(line.x, line.endX);
+      const endY = Math.max(line.y, line.endY);
+      finalShape = { ...shape.current, x, y, endX, endY } as Shape;
     } else {
       finalShape = { ...shape.current };
     }
-    setCurrentShapes((prev) => [...prev, finalShape]);
+    SetShapes(finalShape);
     currentPathRef.current = [];
   }
-  useEffect(() => {
-    const getlocalShapes = localStorage.getItem("shapes");
-
-    if(!getlocalShapes) { 
-      localStorage.setItem("Shapes",JSON.stringify(CurrentShapes))
-    }
-    Redraw(CurrentShapes, null, false)
-  }, [CurrentShapes])
-
 
   const Redraw = (currentShape: Shape[], shape: Shape | null, drawing: boolean) => {
     const drawer = drawerRef.current;
-  if(shape) socket.sendMessage(shape.toString());
     if (!drawer) return;
     drawer.clear();
     currentShape.forEach((s) => {
@@ -217,16 +233,17 @@ const Canvas = () => {
         break;
       case ShapeProp.eraser:
         EraseRef.current = {
-          x:e.nativeEvent.offsetX,
-          y:e.nativeEvent.offsetY,
+          x: e.nativeEvent.offsetX,
+          y: e.nativeEvent.offsetY,
         }
-       setCurrentShapes(prev=> 
-        prev.filter(shape=> !isShapeHit(shape,EraseRef.current.x,EraseRef.current.y))
-       )
-       return;
-    }
+        DeleteShapes((shape) => isShapeHit(shape, e.nativeEvent.offsetX, e.nativeEvent.offsetY));
+        break;
 
-    Redraw(CurrentShapes, shape.current, isDrawingRef.current);
+      default: false;
+    }
+    shape.current.owner = UserName;
+    Redraw(Shapes, shape.current, isDrawingRef.current);
+    socket.sendMessage(JSON.stringify(Shapes));
   };
 
 

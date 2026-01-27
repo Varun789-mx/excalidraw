@@ -15,7 +15,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const sendMessage = useCallback((msg: string) => {
         if (SockerRef && SockerRef.current?.readyState === 1) {
             SockerRef.current.send(msg);
-            console.log(msg.toString(), "From send message");
+            console.log(msg,"from send");
         }
     }, [])
     useEffect(() => {
