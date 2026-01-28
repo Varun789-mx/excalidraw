@@ -12,7 +12,7 @@ const Canvas = () => {
   const startRef = useRef({ x: 0, y: 0 });
   const [isDrawing, setDrawing] = useState(false);
   const drawerRef = useRef<CanvasDrawer | null>(null);
-  const UserName = useShapeStore((state)=>state.username);
+  const UserName = useShapeStore((state) => state.username);
   const shape = useRef<Shape>({
     type: ShapeProp.rectangle,
     x: 0,
@@ -40,7 +40,7 @@ const Canvas = () => {
   useEffect(() => {
     Redraw(Shapes, null, false);
   }, [Shapes]);
-  
+
 
 
   function HandleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
@@ -115,27 +115,34 @@ const Canvas = () => {
         type: ShapeProp.FreeHandLine,
         points: [...shape.current.points]
       }
-    } else if (shape.current.type === ShapeProp.rectangle) {
+    }
+    else if (shape.current.type === ShapeProp.rectangle) {
       const rect = shape.current as any;
       const x = Math.min(rect.x, rect.x + rect.width);
       const y = Math.min(rect.y, rect.y + rect.height);
       const width = Math.abs(rect.width);
       const height = Math.abs(rect.height);
       finalShape = { ...shape.current, x, y, width, height } as Shape;
-    } else if (shape.current.type === ShapeProp.circle) {
+    }
+    else if (shape.current.type === ShapeProp.circle) {
       const circle = shape.current as any;
       finalShape = { ...shape.current, radius: Math.abs(circle.radius) } as Shape;
-    } else if (shape.current.type === ShapeProp.line) {
+    }
+    else if (shape.current.type === ShapeProp.line) {
       const line = shape.current as any;
       const x = Math.min(line.x, line.endX);
       const y = Math.min(line.y, line.endY);
       const endX = Math.max(line.x, line.endX);
       const endY = Math.max(line.y, line.endY);
       finalShape = { ...shape.current, x, y, endX, endY } as Shape;
-    } else {
+    }
+    else {
       finalShape = { ...shape.current };
     }
+    finalShape.owner = UserName;
+    console.log(UserName,"From username");
     SetShapes(finalShape);
+    socket.sendMessage(JSON.stringify(finalShape));
     currentPathRef.current = [];
   }
 
@@ -241,12 +248,8 @@ const Canvas = () => {
 
       default: false;
     }
-    shape.current.owner = UserName;
     Redraw(Shapes, shape.current, isDrawingRef.current);
-    socket.sendMessage(JSON.stringify(Shapes));
   };
-
-
   return (
     <div className="overflow-hidden inset-0 fixed">
       <canvas

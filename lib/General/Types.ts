@@ -43,6 +43,7 @@ export interface ShapeStoreprop {
 
 export interface ISOCKETTYPE {
     sendMessage: (msg: string) => void;
+    RcdMessage:(msg:string)=>void;
 }
 export type Shape = |
 {

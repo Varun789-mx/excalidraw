@@ -4,6 +4,7 @@ import WebSocket, { WebSocketServer } from "ws";
 import http from "http"
 import Redis from "ioredis";
 
+let count = 0;
 export class WebsocketManager {
     private static Instance: WebsocketManager;
     public wss: WebSocketServer;
@@ -30,6 +31,7 @@ export class WebsocketManager {
         this.publisher.publish(channelName, message)
     }
     private BroadCast(userChannel: string, message: string) {
+        console.log(userChannel, message);
         this.roomMap.forEach((channelName, ws) => {
             if (channelName === userChannel && ws.readyState === 1) {
                 ws.send(message);
@@ -57,10 +59,8 @@ export class WebsocketManager {
             console.log(request.url, "request url")
         })
     }
-
-    //this function returns the websocket instance
     static getsocket() {
-        if(!this.Instance) { 
+        if (!this.Instance) {
             this.Instance = new WebsocketManager()
         }
         return this.Instance;
@@ -75,13 +75,16 @@ export class WebsocketManager {
                 this.subscriber.subscribe(room);
             }
             ws.on('error', console.error);
-            ws.on('message', async (message) => {
+            ws.on('message', async message => {
                 if (!room) return;
                 try {
                     await this.publisher.publish(room, JSON.stringify({
                         message: message.toString(),
                         timeStamp: Date.now(),
                     }))
+                    console.log(message.toString(), "from client msg ");
+                    count++;
+                    console.log("Msg count", count);
                 } catch (error) {
                     console.log(`Error in publishing message ${error}`);
                 }

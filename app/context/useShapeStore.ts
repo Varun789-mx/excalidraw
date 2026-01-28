@@ -6,7 +6,7 @@ export const useShapeStore = create<ShapeStoreprop>()(
     devtools(
         persist(
             (set, get) => ({
-                roomId: "",
+                roomId: "Yash",
                 Shapes: [],
                 username: "",
 
