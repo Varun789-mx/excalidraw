@@ -8,7 +8,7 @@ export const useShapeStore = create<ShapeStoreprop>()(
             (set, get) => ({
                 roomId: "Yash",
                 Shapes: [],
-                username: "",
+                username: "Pappu",
 
                 setroom: (Id: string) => {
                     set({ roomId: Id });

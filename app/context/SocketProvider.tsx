@@ -1,5 +1,5 @@
 "use client"
-import { ISOCKETTYPE, Shape } from "@/lib/General/Types";
+import { ISOCKETTYPE } from "@/lib/General/Types";
 import React, { ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useShapeStore } from "./useShapeStore";
 
@@ -13,18 +13,16 @@ export const useSocket = () => {
 export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const roomId = useShapeStore((state) => state.roomId);
     const SocketRef = useRef<WebSocket | null>(null);
-    const [ServerMsg, setServerMsg] = useState("");
+    const SetShape = useShapeStore((state) => state.setShape);
     const sendMessage = useCallback((msg: string) => {
         if (SocketRef && SocketRef.current?.readyState === 1) {
             SocketRef.current.send(msg);
         }
     }, [])
-    const RcdMessage = useCallback((msg:string)=> { 
-        const message = JSON.parse(msg);
-        
-        console.log(message,"From rcd");
-
-    },[])
+    const RcdMessage = useCallback((msg: { message: string }) => {
+        const ShapeData = JSON.parse(msg.message);
+        SetShape(ShapeData);
+    }, [])
     useEffect(() => {
         const room = roomId;
         if (!SocketRef.current) {
@@ -34,10 +32,11 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             console.log('Web socket connected');
         }
         SocketRef.current.onmessage = function (event) {
-           RcdMessage(event.data);
+            const message = JSON.parse(event.data);
+            RcdMessage(message);
         }
     }, [])
     return (
-        <SocketContext.Provider value={{ sendMessage ,RcdMessage}}>{children}</SocketContext.Provider>
+        <SocketContext.Provider value={{ sendMessage, RcdMessage }}>{children}</SocketContext.Provider>
     )
 }

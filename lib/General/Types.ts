@@ -38,12 +38,12 @@ export interface ShapeStoreprop {
     setroom: (id: string) => void;
     setShape: (shapeObj: Shape) => void;
     setUserName: (username: string) => void;
-    DeleteShape:(filter:(shape:Shape)=>boolean)=>void;
+    DeleteShape: (filter: (shape: Shape) => boolean) => void;
 }
 
 export interface ISOCKETTYPE {
     sendMessage: (msg: string) => void;
-    RcdMessage:(msg:string)=>void;
+    RcdMessage: (msg: { message: string }) => void;
 }
 export type Shape = |
 {

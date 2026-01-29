@@ -42,6 +42,13 @@ const Canvas = () => {
   }, [Shapes]);
 
 
+  function GetCanvasCords(e: React.PointerEvent<HTMLCanvasElement>) {
+    const rec = canvasRef.current!.getBoundingClientRect();
+    return {
+      x: e.clientX - rec.left,
+      y: e.clientY - rec.top,
+    }
+  }
 
   function HandleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
     console.log(SelectedShape, "From selected shape");
@@ -130,17 +137,17 @@ const Canvas = () => {
     }
     else if (shape.current.type === ShapeProp.line) {
       const line = shape.current as any;
-      const x = Math.min(line.x, line.endX);
-      const y = Math.min(line.y, line.endY);
-      const endX = Math.max(line.x, line.endX);
-      const endY = Math.max(line.y, line.endY);
+      const x = line.x;
+      const y = line.y;
+      const endX = line.endX;
+      const endY = line.endY;
       finalShape = { ...shape.current, x, y, endX, endY } as Shape;
     }
     else {
       finalShape = { ...shape.current };
     }
     finalShape.owner = UserName;
-    console.log(UserName,"From username");
+    console.log(UserName, "From username");
     SetShapes(finalShape);
     socket.sendMessage(JSON.stringify(finalShape));
     currentPathRef.current = [];
@@ -173,8 +180,7 @@ const Canvas = () => {
           drawer.CreateLine(s.x, s.y, s.endX, s.endY);
           break;
       }
-    }
-    )
+    })
 
     if (drawing && shape) {
       switch (shape.type) {
@@ -201,19 +207,19 @@ const Canvas = () => {
       }
     }
   };
-
-  const HandleDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const HandleDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     if (!isDrawingRef.current) return;
+    const {x,y} = GetCanvasCords(e);
     switch (shape.current.type) {
       case ShapeProp.rectangle:
         shape.current = ({
           type: ShapeProp.rectangle,
           x: startRef.current.x,
           y: startRef.current.y,
-          width: e.nativeEvent.offsetX - startRef.current.x,
-          height: e.nativeEvent.offsetY - startRef.current.y,
+          width: x - startRef.current.x,
+          height: y - startRef.current.y,
         });
         break;
       case ShapeProp.circle:
@@ -221,7 +227,7 @@ const Canvas = () => {
           type: ShapeProp.circle,
           x: startRef.current.x,
           y: startRef.current.y,
-          radius: Math.hypot(startRef.current.x - e.nativeEvent.offsetX, startRef.current.y - e.nativeEvent.offsetY)
+          radius: Math.hypot(startRef.current.x - x, startRef.current.y - y)
         }
         break;
       case ShapeProp.line:
@@ -229,21 +235,21 @@ const Canvas = () => {
           type: ShapeProp.line,
           x: startRef.current.x,
           y: startRef.current.y,
-          endX: e.nativeEvent.offsetX,
-          endY: e.nativeEvent.offsetY,
+          endX:x,
+          endY: y,
         }
         break;
       case ShapeProp.FreeHandLine:
         shape.current.points.push({
-          x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY
+          x:x, y: y
         })
         break;
       case ShapeProp.eraser:
         EraseRef.current = {
-          x: e.nativeEvent.offsetX,
-          y: e.nativeEvent.offsetY,
+          x: x,
+          y: y,
         }
-        DeleteShapes((shape) => isShapeHit(shape, e.nativeEvent.offsetX, e.nativeEvent.offsetY));
+        DeleteShapes((shape) => isShapeHit(shape, x, y));
         break;
 
       default: false;
@@ -251,13 +257,13 @@ const Canvas = () => {
     Redraw(Shapes, shape.current, isDrawingRef.current);
   };
   return (
-    <div className="overflow-hidden inset-0 fixed">
+    <div className="overflow-hidden inset-0 fixed touch-none">
       <canvas
         ref={canvasRef}
         id="canvas"
-        onMouseDown={HandleMouseDown}
-        onMouseUp={HandleMouseUp}
-        onMouseMove={HandleDrawing}
+        onPointerDown={HandleMouseDown}
+        onPointerUp={HandleMouseUp}
+        onPointerMove={HandleDrawing}
         className={`bg-gray-900  w-screen h-screen ${isDrawing ? "cursor-crosshair" : "cursor-default"} `}
       />
       <div className="absolute top-4 left-1/2 -translate-x-1/2  bg-blend-saturation border border-gray-700 rounded-2xl">

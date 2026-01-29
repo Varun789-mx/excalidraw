@@ -49,7 +49,7 @@ export class WebsocketManager {
         this.SubscriptionSet.add(room);
         console.log(`Subscribed to ${room}`);
     }
-    //this function upgrades the connnection to websocket from http
+    //this function upgrades the connnection to websocket from http i'm still confused in some part
     private HandleUpgrade = (request: IncomingMessage, socket: Duplex, head: Buffer) => {
         const urlparams = new URL(request.url || "", `http://${request.headers.host}`);
         const room = urlparams.searchParams.get("room");
@@ -96,8 +96,6 @@ export class WebsocketManager {
             })
         })
     }
-
-    //it listens on port
     public listen(port: number) {
         this.server.listen(port, () => {
             console.log(`server is running on ws://localhost:${port}`);
