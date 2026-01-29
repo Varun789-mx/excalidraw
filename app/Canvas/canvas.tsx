@@ -50,21 +50,20 @@ const Canvas = () => {
     }
   }
 
-  function HandleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
-    console.log(SelectedShape, "From selected shape");
+  function HandleMouseDown(e: React.PointerEvent<HTMLCanvasElement>) {
     isDrawingRef.current = true;
     setDrawing(true);
-    startRef.current = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
+    const {x,y} = GetCanvasCords(e);
+    startRef.current = { x: x, y: y };
 
     if (SelectedShape === ShapeProp.line) {
-      currentPathRef.current = [{ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }];
+      currentPathRef.current = [{ x: x, y:y }];
     }
     if (SelectedShape === ShapeProp.eraser) {
       EraseRef.current = ({
-        x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY
+        x: x, y: y
       })
       shape.current = { type: ShapeProp.eraser } as Shape
-      console.log(EraseRef.current);
       return;
     }
     switch (SelectedShape) {
@@ -109,7 +108,7 @@ const Canvas = () => {
     const worldX = (screenX - Camera.x) / Camera.zoom;
     const worldY = (screenY - Camera.y) / Camera.zoom;
   }
-  function HandleMouseUp(e: React.MouseEvent<HTMLCanvasElement>) {
+  function HandleMouseUp(e: React.PointerEvent<HTMLCanvasElement>) {
     isDrawingRef.current = false;
     setDrawing(false);
     let finalShape: Shape;
