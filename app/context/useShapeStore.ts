@@ -6,9 +6,9 @@ export const useShapeStore = create<ShapeStoreprop>()(
     devtools(
         persist(
             (set, get) => ({
-                roomId: "Yash",
+                roomId: "",
                 Shapes: [],
-                username: "Pappu",
+                username: "",
 
                 setroom: (Id: string) => {
                     set({ roomId: Id });
@@ -21,6 +21,7 @@ export const useShapeStore = create<ShapeStoreprop>()(
                 },
                 setUserName: (user: string) => {
                     set({ username: user })
+                    localStorage.setItem("username", user);
                 },
                 DeleteShape: (filter: (shape: Shape) => boolean) => {
                     set((state) => ({
@@ -32,3 +33,4 @@ export const useShapeStore = create<ShapeStoreprop>()(
         )
     )
 );
+

@@ -53,11 +53,11 @@ const Canvas = () => {
   function HandleMouseDown(e: React.PointerEvent<HTMLCanvasElement>) {
     isDrawingRef.current = true;
     setDrawing(true);
-    const {x,y} = GetCanvasCords(e);
+    const { x, y } = GetCanvasCords(e);
     startRef.current = { x: x, y: y };
 
     if (SelectedShape === ShapeProp.line) {
-      currentPathRef.current = [{ x: x, y:y }];
+      currentPathRef.current = [{ x: x, y: y }];
     }
     if (SelectedShape === ShapeProp.eraser) {
       EraseRef.current = ({
@@ -210,7 +210,7 @@ const Canvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     if (!isDrawingRef.current) return;
-    const {x,y} = GetCanvasCords(e);
+    const { x, y } = GetCanvasCords(e);
     switch (shape.current.type) {
       case ShapeProp.rectangle:
         shape.current = ({
@@ -234,13 +234,13 @@ const Canvas = () => {
           type: ShapeProp.line,
           x: startRef.current.x,
           y: startRef.current.y,
-          endX:x,
+          endX: x,
           endY: y,
         }
         break;
       case ShapeProp.FreeHandLine:
         shape.current.points.push({
-          x:x, y: y
+          x: x, y: y
         })
         break;
       case ShapeProp.eraser:
@@ -256,7 +256,7 @@ const Canvas = () => {
     Redraw(Shapes, shape.current, isDrawingRef.current);
   };
   return (
-    <div className=" overflow-hidden flex-1 inset-0  touch-none">
+    <div className=" absolute inset-0 touch-none">
       <canvas
         ref={canvasRef}
         id="canvas"
@@ -288,4 +288,4 @@ const Canvas = () => {
   );
 };
 
-export default Canvas;
+export default Canvas;  

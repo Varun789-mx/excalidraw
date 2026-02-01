@@ -26,7 +26,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     useEffect(() => {
         const room = roomId;
         if (!SocketRef.current) {
-            SocketRef.current = new WebSocket(`ws://localhost:5000?room=${room}`);
+            SocketRef.current = new WebSocket(`ws://192.168.1.22:5000?room=${room}`);
         }
         SocketRef.current.onopen = () => {
             console.log('Web socket connected');
