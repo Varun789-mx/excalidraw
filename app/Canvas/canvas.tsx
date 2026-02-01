@@ -256,7 +256,7 @@ const Canvas = () => {
     Redraw(Shapes, shape.current, isDrawingRef.current);
   };
   return (
-    <div className="overflow-hidden inset-0 fixed touch-none">
+    <div className=" overflow-hidden flex-1 inset-0  touch-none">
       <canvas
         ref={canvasRef}
         id="canvas"

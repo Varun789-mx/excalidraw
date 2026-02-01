@@ -1,6 +1,7 @@
 "use client"
+import { SideBar } from "@/components/Sidebar";
 import Canvas from "./Canvas/canvas";
-import {  useEffect } from "react";
+import { useEffect } from "react";
 
 export default function Home() {
   const fetchData = async () => {
@@ -29,7 +30,8 @@ export default function Home() {
 
 
   return (
-    <div>
+    <div className="flex">
+      <SideBar />
       <Canvas />
     </div>
   );

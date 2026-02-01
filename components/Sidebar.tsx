@@ -1,79 +1,35 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {
-  ChevronDown,
-  ChevronRight,
+import { Link, Menu, User } from "lucide-react";
+import { useState } from "react"
 
-  Plus,
-  LogOut,
-  ChevronFirst,
-  ChevronLast,
-  Dot,
-  Ellipsis,
-  Delete,
-  Trash2,
-} from "lucide-react";
-
-export default function SideChatBar({
-  SideBar,
-  setSideBar,
-}: {
-  SideBar: boolean;
-  setSideBar: Dispatch<SetStateAction<boolean>>;
-}) {
-  const Theme = true;
-  const [ShowDelete, setShowDelete] = useState(false);
- 
-  const [ShowChats, setShowChats] = useState(true);
-  const [isFooterOpen, setisFooterOpen] = useState(true);
+export const SideBar = () => {
+  const [show, setshow] = useState(false);
+  const [hovered, sethovered] = useState(false);
   return (
-    <aside
-      className={`h-screen border-r border-gray-800 ${
-        SideBar ? "w-full md:w-60" : "w-0"
-      } `}
-    >
-      <nav
-        className={`h-full flex flex-col overflow-hidden border-gray-800 shadow-sm  ${
-          SideBar ? "w-full md:w-60" : "w-0"
-        } `}
+    <div className="absolute w-80 h-screen overflow-hidden pl-3 p-3 gap-3" style={{ pointerEvents: "none" }}>
+      <button className={`p-1  bg-gray-700 rounded-xl ${show ? "bg-gray-800 " : ""} cursor-pointer`}
+        style={{ pointerEvents: "auto" }}
+        onClick={() => setshow(!show)}><Menu /></button>
+      <aside hidden={show} className="w-full h-3/4 flex " style={{
+        pointerEvents: hovered ? "auto" : "none"
+      }}
+        onMouseEnter={() => sethovered(true)}
+        onMouseLeave={() => sethovered(false)}
       >
-        <div className={`p-4 border-b border-gray-800  `}>
-          <div className="flex items-center justify-between mb-4">
-
-            <button
-              onClick={() => setSideBar(!SideBar)}
-              className=" p-2 hover:bg-gray-700  text-white rounded-lg"
-            >
-              {SideBar ? (
-                <ChevronFirst className="w-5 h-5" />
-              ) : (
-                <ChevronLast className="w-5 h-5" />
-              )}
-            </button>
-          </div>
-         
-          
+        <div className="flex w-full flex-col p-3  bg-gray-800 rounded-2xl">
+          <form className="p-2 ">
+            <label className="text-gray-400 text-xs ">Username</label>
+            <div className="flex  items-center  gap-2 bg-black/40 border border-white/10 rounded-lg px-3 py-2">
+              <User size={16} />
+              <input placeholder="Your name" className="bg-transparent outline-none text-sm w-full" />
+            </div>
+            <label className="text-gray-400 text-xs ">Room ID</label>
+            <div className="flex  items-center  gap-2 bg-black/40 border border-white/10 rounded-lg px-3 py-2">
+              <Link size={16} />
+              <input placeholder="abc123" className="bg-transparent outline-none text-sm w-full" />
+            </div>
+          </form>
         </div>
-        <div className={`flex-1 overflow-hidden p-2  duration-200 w-full`}>
-          <button
-            className="w-full text-gray-500 flex justify-start"
-            onClick={() => {
-              setShowChats(!ShowChats);
-            }}
-          >
-            Chats {ShowChats ? <ChevronDown /> : <ChevronRight />}
-          </button>
-          <div
-            className={`w-60 h-[80%] border border-gray-800 p-2 overflow-y-auto flex-1 space-y-2 pr-2 ${
-              Theme ? "bg-[#181818]" : "bg-white"
-            } `}
-          >
-                    <div className="flex p-1 overflow-y-auto cursor-pointer justify-between items-center hover:bg-gray-700 rounded-lg ">
-                  
-                      <div className="flex items-center gap-5">
-           
-        <footer className={`overflow-hidden transition-all w-full`}>
-        </footer>
-      </nav>
-    </aside>
-  );
-}
+      </aside >
+    </div >
+  )
+} 
