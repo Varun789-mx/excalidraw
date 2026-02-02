@@ -146,7 +146,6 @@ const Canvas = () => {
       finalShape = { ...shape.current };
     }
     finalShape.owner = UserName;
-    console.log(UserName, "From username");
     SetShapes(finalShape);
     socket.sendMessage(JSON.stringify(finalShape));
     currentPathRef.current = [];

@@ -6,7 +6,7 @@ import { useEffect } from "react";
 export default function Home() {
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/rooms`, {
+      const response = await fetch(`http://localhost:3000/api/room`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,6 +26,7 @@ export default function Home() {
   }
   useEffect(() => {
     fetchData();
+    console.log("Fetch data runningh")
   }, []);
 
 

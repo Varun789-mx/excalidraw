@@ -4,7 +4,9 @@ let wss: WebsocketManager | null;
 
 export function GetSocket() {
     if (!wss) {
-        wss = new WebsocketManager();
+        console.log(`Initializing websocket server`);
+
+        wss = WebsocketManager.getsocket();
         wss.initlisteners();
         wss.listen(5000);
     }

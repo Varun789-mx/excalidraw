@@ -25,15 +25,12 @@ export class WebsocketManager {
         this.server.on('upgrade', this.HandleUpgrade);
         this.wss = new WebSocketServer({ noServer: true });
     }
-
-    public publish(channelName: string, message: string) {
-        this.publisher.publish(channelName, message)
-    }
-
     private BroadCast(userChannel: string, message: string) {
         console.log(userChannel, message);
         this.roomMap.forEach((channelName, ws) => {
             if (channelName === userChannel && ws.readyState === WebSocket.OPEN) {
+                console.log(message, "User message");
+                console.log(userChannel, "User channel")
                 ws.send(message);
             }
         })
@@ -44,9 +41,9 @@ export class WebsocketManager {
         res.end('Web Socket running');
     }
 
-    public Subscribe(room: string) {
+    private async Subscribe(room: string) {
         if (this.SubscriptionSet.has(room)) return;
-        this.subscriber.subscribe(room);
+        await this.subscriber.subscribe(room);
         this.SubscriptionSet.add(room);
         console.log(`Subscribed to ${room}`);
     }
@@ -56,8 +53,8 @@ export class WebsocketManager {
         const room = urlparams.searchParams.get("room");
         this.wss.handleUpgrade(request, socket, head, (ws) => {
             if (room) this.roomMap.set(ws, room);
+            console.log(room, "Current room");
             this.wss.emit('connection', ws, request);
-            console.log(request.url, "request url")
         })
     }
 
@@ -71,19 +68,21 @@ export class WebsocketManager {
     public initlisteners() {
         const wss = this.wss;
         wss.on('connection', (ws) => {
+            console.log("Connection event fired")
             const room = this.roomMap.get(ws);
             if (room) {
-                this.Subscribe(room); // use Subscribe instead of calling subscriber directly
+                this.Subscribe(room);
             }
             ws.on('error', console.error);
             ws.on('message', async message => {
                 if (!room) return;
                 try {
-                    await this.publisher.publish(room, JSON.stringify({
+                    console.log(message);
+                    this.publisher.publish(room, JSON.stringify({
                         message: message.toString(),
                         timeStamp: Date.now(),
                     }))
-                    console.log(message.toString(), "from client msg ");
+                    console.log(message.toString(), "we got something ");
                     count++;
                     console.log("Msg count", count);
                 } catch (error) {
@@ -92,7 +91,7 @@ export class WebsocketManager {
             })
             ws.on('close', (code, reason) => {
                 console.log(`connection has been closed ${code} because of ${reason}`);
-                this.roomMap.delete(ws); // actually clean up the dead connection
+                this.roomMap.delete(ws);
             })
         })
     }

@@ -14,7 +14,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const roomId = useShapeStore((state) => state.roomId);
     const SocketRef = useRef<WebSocket | null>(null);
     const SetShape = useShapeStore((state) => state.setShape);
-    const sendMessage = useCallback((msg: string) => {
+    const sendMessage: ISOCKETTYPE['sendMessage'] = useCallback((msg: string) => {
         if (SocketRef && SocketRef.current?.readyState === 1) {
             SocketRef.current.send(msg);
         }
@@ -26,7 +26,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     useEffect(() => {
         const room = roomId;
         if (!SocketRef.current) {
-            SocketRef.current = new WebSocket(`ws://192.168.1.22:5000?room=${room}`);
+            SocketRef.current = new WebSocket(`ws://localhost:5000?room=${room}`);
         }
         SocketRef.current.onopen = () => {
             console.log('Web socket connected');
@@ -34,6 +34,10 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         SocketRef.current.onmessage = function (event) {
             const message = JSON.parse(event.data);
             RcdMessage(message);
+        }
+
+        return () => {
+            SocketRef.current?.close();
         }
     }, [])
     return (
