@@ -35,7 +35,7 @@ export interface ShapeStoreprop {
     Shapes: Shape[],
     username: string,
 
-    setroom: (id: string) => void;
+    setroom: (Id: string) => void;
     setShape: (shapeObj: Shape) => void;
     setUserName: (username: string) => void;
     DeleteShape: (filter: (shape: Shape) => boolean) => void;

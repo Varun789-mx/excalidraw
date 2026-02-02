@@ -40,7 +40,8 @@ export const SideBar = () => {
                 />
               </div>
               <div className="w-full flex p-2 justify-center">
-                <button className="p-2 w-full flex justify-center rounded-lg text-sm font-bold bg-blue-500 focus:bg-blue-600">
+                <button
+                  onClick={() => setShow(!show)} className="p-2 w-full flex justify-center rounded-lg text-sm font-bold bg-blue-500 focus:bg-blue-600">
                   Create/Join Room
                 </button>
               </div>

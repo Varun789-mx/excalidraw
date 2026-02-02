@@ -24,10 +24,13 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         SetShape(ShapeData);
     }, [])
     useEffect(() => {
-        const room = roomId;
-        if (!SocketRef.current) {
-            SocketRef.current = new WebSocket(`ws://localhost:5000?room=${room}`);
-        }
+        if (!roomId) return;
+
+        SocketRef.current?.close();
+
+        SocketRef.current = new WebSocket(`ws://localhost:5000?room=${roomId}`);
+
+
         SocketRef.current.onopen = () => {
             console.log('Web socket connected');
         }
@@ -35,11 +38,14 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             const message = JSON.parse(event.data);
             RcdMessage(message);
         }
+        SocketRef.current.onclose = () => {
+            console.log("web socket closed");
+        }
 
         return () => {
             SocketRef.current?.close();
         }
-    }, [])
+    }, [roomId])
     return (
         <SocketContext.Provider value={{ sendMessage, RcdMessage }}>{children}</SocketContext.Provider>
     )

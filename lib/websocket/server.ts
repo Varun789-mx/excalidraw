@@ -51,6 +51,7 @@ export class WebsocketManager {
     private HandleUpgrade = (request: IncomingMessage, socket: Duplex, head: Buffer) => {
         const urlparams = new URL(request.url || "", `http://${request.headers.host}`);
         const room = urlparams.searchParams.get("room");
+        console.log("the room is ", room);
         this.wss.handleUpgrade(request, socket, head, (ws) => {
             if (room) this.roomMap.set(ws, room);
             console.log(room, "Current room");
@@ -77,7 +78,7 @@ export class WebsocketManager {
             ws.on('message', async message => {
                 if (!room) return;
                 try {
-                    console.log(message);
+                    console.log(message.toString(), "The msg");
                     this.publisher.publish(room, JSON.stringify({
                         message: message.toString(),
                         timeStamp: Date.now(),
