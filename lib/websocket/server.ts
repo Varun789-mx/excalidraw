@@ -19,8 +19,8 @@ export class WebsocketManager {
         this.roomMap = new Map();
         const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
         console.log(redisUrl, "redisss");
-        this.publisher = new Redis();
-        this.subscriber = new Redis();
+        this.publisher = new Redis(redisUrl);
+        this.subscriber = new Redis(redisUrl);
         this.subscriber.on('message', (channel, message) => {
             this.BroadCast(channel, message);
         })
