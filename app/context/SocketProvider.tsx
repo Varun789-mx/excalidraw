@@ -28,7 +28,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         SocketRef.current?.close();
 
-        SocketRef.current = new WebSocket(`ws://localhost:5000?room=${roomId}`);
+        SocketRef.current = new WebSocket(`wss://${process.env.NEXT_PUBLIC_BACKEND_URL}?room=${roomId}`);
 
 
         SocketRef.current.onopen = () => {

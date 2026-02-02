@@ -4,6 +4,7 @@ import WebSocket, { WebSocketServer } from "ws";
 import http from "http"
 import Redis from "ioredis";
 
+
 let count = 0;
 export class WebsocketManager {
     private static Instance: WebsocketManager;
@@ -16,6 +17,8 @@ export class WebsocketManager {
 
     constructor() {
         this.roomMap = new Map();
+        const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+        console.log(redisUrl, "redisss");
         this.publisher = new Redis();
         this.subscriber = new Redis();
         this.subscriber.on('message', (channel, message) => {
@@ -99,7 +102,7 @@ export class WebsocketManager {
 
     public listen(port: number) {
         this.server.listen(port, () => {
-            console.log(`server is running on ws://localhost:${port}`);
+            console.log(`server is running on ${process.env.NEXT_PUBLIC_BACKEND_URL}`);
         })
     }
 }
