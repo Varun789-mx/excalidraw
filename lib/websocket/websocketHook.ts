@@ -1,7 +1,7 @@
 import { WebsocketManager } from "./server";
 
 let wss: WebsocketManager | null;
-let PORT = process.env.PORT || 5000;
+let PORT =  5000;
 export function GetSocket() {
 
     if (!wss) {
