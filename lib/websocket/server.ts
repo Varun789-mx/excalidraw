@@ -20,10 +20,22 @@ export class WebsocketManager {
     console.log(redisUrl, "redis");
     this.publisher = new Redis(redisUrl);
     this.subscriber = new Redis(redisUrl);
+    this.subscriber.on('connect',()=> { 
+      console.log("Subscriber connected to redis successfully");
+    })
+    this.publisher.on('connect',()=> { 
+      console.log("publisher connected to redis successfully");
+    })
     this.subscriber.on("message", (channel, message) => {
       console.log("Redis sub on")
       this.BroadCast(channel, message);
     });
+    this.subscriber.on('error',(err)=> { 
+      console.log("Error occured while connecting to the redis sub",err);
+    })
+        this.publisher.on('error',(err)=> { 
+      console.log("Error occured while connecting to the redis sub",err);
+    })
     this.server = http.createServer(this.HandleHttpRequest);
     this.server.on("upgrade", this.HandleUpgrade);
     this.wss = new WebSocketServer({ noServer: true });
