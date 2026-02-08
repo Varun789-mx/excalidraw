@@ -5,6 +5,7 @@ import { useState } from "react"
 export const SideBar = () => {
   const [show, setShow] = useState(false);
   const setRoomId = useShapeStore((state) => state.setroom);
+  const roomId = useShapeStore((state) => state.roomId);
   const setusername = useShapeStore((state) => state.setUserName);
 
   return (
@@ -19,8 +20,10 @@ export const SideBar = () => {
 
       {show && (
         <aside className="w-full h-3/4 flex" style={{ pointerEvents: "auto" }}>
+        
           <div className="flex w-full flex-col p-3 bg-gray-800 rounded-2xl">
             <div className="p-2">
+                <h1 className="text-gray-200 text-xs">Room Id: #{roomId}</h1>
               <label className="text-gray-400 text-xs">Username</label>
               <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-lg px-3 py-2">
                 <User size={16} />
