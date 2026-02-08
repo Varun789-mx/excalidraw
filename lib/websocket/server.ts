@@ -12,7 +12,6 @@ export class WebsocketManager {
   private subscriber: Redis;
   private roomMap: Map<WebSocket, string>;
   private SubscriptionSet = new Set<string>();
-  private server: http.Server;
 
   constructor() {
     this.roomMap = new Map();
@@ -20,24 +19,22 @@ export class WebsocketManager {
     console.log(redisUrl, "redis");
     this.publisher = new Redis(redisUrl);
     this.subscriber = new Redis(redisUrl);
-    this.subscriber.on('connect',()=> { 
+    this.subscriber.on('connect', () => {
       console.log("Subscriber connected to redis successfully");
     })
-    this.publisher.on('connect',()=> { 
+    this.publisher.on('connect', () => {
       console.log("publisher connected to redis successfully");
     })
     this.subscriber.on("message", (channel, message) => {
       console.log("Redis sub on")
       this.BroadCast(channel, message);
     });
-    this.subscriber.on('error',(err)=> { 
-      console.log("Error occured while connecting to the redis sub",err);
+    this.subscriber.on('error', (err) => {
+      console.log("Error occured while connecting to the redis sub", err);
     })
-        this.publisher.on('error',(err)=> { 
-      console.log("Error occured while connecting to the redis sub",err);
+    this.publisher.on('error', (err) => {
+      console.log("Error occured while connecting to the redis sub", err);
     })
-    this.server = http.createServer(this.HandleHttpRequest);
-    this.server.on("upgrade", this.HandleUpgrade);
     this.wss = new WebSocketServer({ noServer: true });
   }
   private BroadCast(userChannel: string, message: string) {
@@ -51,7 +48,11 @@ export class WebsocketManager {
     });
   }
 
-  private HandleHttpRequest = (
+  public setRoom(ws: WebSocket, room: string) {
+    this.roomMap.set(ws, room);
+    console.log("Current room set");
+  }
+  public HandleHttpRequest = (
     req: http.IncomingMessage,
     res: http.ServerResponse,
   ) => {
@@ -66,23 +67,6 @@ export class WebsocketManager {
     console.log(`Subscribed to ${room}`);
   }
 
-  private HandleUpgrade = (
-    request: IncomingMessage,
-    socket: Duplex,
-    head: Buffer,
-  ) => {
-    const urlparams = new URL(
-      request.url || "",
-      `http://${request.headers.host}`,
-    );
-    const room = urlparams.searchParams.get("room");
-    console.log("the room is ", room);
-    this.wss.handleUpgrade(request, socket, head, (ws) => {
-      if (room) this.roomMap.set(ws, room);
-      console.log(room, "Current room");
-      this.wss.emit("connection", ws, request);
-    });
-  };
 
   static getsocket() {
     if (!this.Instance) {
@@ -125,11 +109,4 @@ export class WebsocketManager {
     });
   }
 
-  public listen(port: number) {
-    this.server.listen(port, () => {
-      console.log(
-        `server is running on ${process.env.NEXT_PUBLIC_BACKEND_URL}`,
-      );
-    });
-  }
 }

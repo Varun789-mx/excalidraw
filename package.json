@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bun --watch web_socket.ts",
+    "dev": "next dev && bun --watch web_socket.ts",
     "build": "next build",
     "start": "bun run web_socket.ts",
     "lint": "eslint"
