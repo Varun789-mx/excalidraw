@@ -3,11 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "bun --watch web_socket.ts",
     "build": "next build",
-    "start": "next start",
-    "ws": "bun server.ts",
-    "ws:dev": "bun --watch server.ts",
+    "start": "bun run web_socket.ts",
     "lint": "eslint"
   },
   "dependencies": {
