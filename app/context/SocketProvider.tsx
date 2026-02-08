@@ -39,7 +39,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     SocketRef.current?.close();
 
     SocketRef.current = new WebSocket(
-      `ws://${process.env.NEXT_PUBLIC_BACKEND_URL}?room=${roomId}`,
+      `wss://${process.env.NEXT_PUBLIC_BACKEND_URL}?room=${roomId}`,
     );
     SocketRef.current.onopen = () => {
       console.log("Web socket connected");
