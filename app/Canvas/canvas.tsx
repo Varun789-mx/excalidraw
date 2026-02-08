@@ -148,7 +148,7 @@ const Canvas = () => {
     }
     finalShape.owner = UserName;
     SetShapes(finalShape);
-    socket.sendMessage(JSON.stringify(Shapes));
+    socket.sendMessage(JSON.stringify(finalShape));
     currentPathRef.current = [];
   }
 
@@ -160,8 +160,7 @@ const Canvas = () => {
     const drawer = drawerRef.current;
     if (!drawer) return;
     drawer.clear();
-    console.log(currentShape,"Here is the currentshape");
-    if(!currentShape) return;
+    if (!currentShape) return;
     currentShape.forEach((s) => {
       switch (s.type) {
         case ShapeProp.rectangle:

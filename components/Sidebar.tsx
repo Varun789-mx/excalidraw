@@ -11,7 +11,7 @@ export const SideBar = () => {
   return (
     <div className="absolute w-80 h-screen overflow-hidden pl-3 p-3 gap-3" style={{ pointerEvents: "none" }}>
       <button
-        className={`p-1 bg-gray-700 rounded-xl ${show ? "bg-gray-800" : ""} cursor-pointer`}
+        className={`p-1 bg-gray-700 rounded-xl ${show ? "" : "bg-gray-800"} cursor-pointer`}
         style={{ pointerEvents: "auto" }}
         onClick={() => setShow(!show)}
       >

@@ -25,6 +25,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
   const SetShape = useShapeStore((state) => state.setShape);
   const sendMessage: ISOCKETTYPE["sendMessage"] = useCallback((msg: string) => {
     if (SocketRef && SocketRef.current?.readyState === 1) {
+      console.log(msg, "send message")
       SocketRef.current.send(msg);
     }
   }, []);
@@ -38,7 +39,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
 
     SocketRef.current?.close();
     const ws_url = process.env.NEXT_PUBLIC_BACKEND_URL;
-    ws_url?.replace("https://","wss://").replace("http://","ws://")
+    ws_url?.replace("https://", "wss://").replace("http://", "ws://")
     SocketRef.current = new WebSocket(
       `${ws_url}?room=${roomId}`,
     );
