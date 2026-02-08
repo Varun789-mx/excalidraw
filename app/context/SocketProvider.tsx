@@ -37,9 +37,10 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     if (!roomId) return;
 
     SocketRef.current?.close();
-
+    const ws_url = process.env.NEXT_PUBLIC_BACKEND_URL;
+    ws_url?.replace("https://","wss://").replace("http://","ws://")
     SocketRef.current = new WebSocket(
-      `wss://${process.env.NEXT_PUBLIC_BACKEND_URL}?room=${roomId}`,
+      `${ws_url}?room=${roomId}`,
     );
     SocketRef.current.onopen = () => {
       console.log("Web socket connected");
