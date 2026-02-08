@@ -17,10 +17,11 @@ export class WebsocketManager {
   constructor() {
     this.roomMap = new Map();
     const redisUrl = process.env.REDIS_URL || "";
-    console.log(redisUrl, "redisss");
+    console.log(redisUrl, "redis");
     this.publisher = new Redis(redisUrl);
     this.subscriber = new Redis(redisUrl);
     this.subscriber.on("message", (channel, message) => {
+      console.log("Redis sub on")
       this.BroadCast(channel, message);
     });
     this.server = http.createServer(this.HandleHttpRequest);
