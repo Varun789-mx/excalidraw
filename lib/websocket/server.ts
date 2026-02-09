@@ -19,22 +19,22 @@ export class WebsocketManager {
     console.log(redisUrl, "redis");
     this.publisher = new Redis(redisUrl);
     this.subscriber = new Redis(redisUrl);
-    this.subscriber.on('connect', () => {
+    this.subscriber.on("connect", () => {
       console.log("Subscriber connected to redis successfully");
-    })
-    this.publisher.on('connect', () => {
+    });
+    this.publisher.on("connect", () => {
       console.log("publisher connected to redis successfully");
-    })
+    });
     this.subscriber.on("message", (channel, message) => {
-      console.log("Redis sub on")
+      console.log("Redis sub on");
       this.BroadCast(channel, message);
     });
-    this.subscriber.on('error', (err) => {
+    this.subscriber.on("error", (err) => {
       console.log("Error occured while connecting to the redis sub", err);
-    })
-    this.publisher.on('error', (err) => {
+    });
+    this.publisher.on("error", (err) => {
       console.log("Error occured while connecting to the redis sub", err);
-    })
+    });
     this.wss = new WebSocketServer({ noServer: true });
   }
   private BroadCast(userChannel: string, message: string) {
@@ -67,7 +67,6 @@ export class WebsocketManager {
     console.log(`Subscribed to ${room}`);
   }
 
-
   static getsocket() {
     if (!this.Instance) {
       this.Instance = new WebsocketManager();
@@ -77,9 +76,14 @@ export class WebsocketManager {
 
   public initlisteners() {
     const wss = this.wss;
-    wss.on("connection", (ws) => {
+    wss.on("connection", (ws, req) => {
       console.log("Connection event fired");
-      const room = this.roomMap.get(ws);
+      const url = new URL(req.url!, `http://${req.headers.host}`);
+      const room = url.searchParams.get("room");
+      if (!room) {
+        ws.close();
+        return;
+      }
       if (room) {
         this.Subscribe(room);
       }
@@ -108,5 +112,4 @@ export class WebsocketManager {
       });
     });
   }
-
 }

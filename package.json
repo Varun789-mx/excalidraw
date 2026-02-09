@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev && bun --watch web_socket.ts",
+    "dev": "tsx web_socket.ts",
     "build": "next build",
-    "start": "bun run web_socket.ts",
+    "start": "NODE_ENV=production node web_socket.ts",
     "lint": "eslint"
   },
   "dependencies": {
@@ -26,7 +26,9 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   },
   "ignoreScripts": [
     "sharp",
