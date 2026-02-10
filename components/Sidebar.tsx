@@ -8,6 +8,23 @@ export const SideBar = () => {
   const roomId = useShapeStore((state) => state.roomId);
   const setusername = useShapeStore((state) => state.setUserName);
 
+
+  const HandleJoin = async () => {
+    const MessageObj = {
+      type: "join",
+      room: "ninja",
+      message: "trying to connect from the frontend",
+    }
+    const connection = await new WebSocket('ws://localhost:5000')
+    if (connection.readyState === 1) {
+      const msgstr = JSON.stringify(MessageObj);
+      connection.send(msgstr);
+    }
+    connection.onmessage = function (event) {
+      console.log("Event Data", event.data);
+    }
+  }
+
   return (
     <div className="absolute w-80 h-screen overflow-hidden pl-3 p-3 gap-3" style={{ pointerEvents: "none" }}>
       <button
@@ -20,10 +37,10 @@ export const SideBar = () => {
 
       {show && (
         <aside className="w-full h-3/4 flex" style={{ pointerEvents: "auto" }}>
-        
+
           <div className="flex w-full flex-col p-3 bg-gray-800 rounded-2xl">
             <div className="p-2">
-                <h1 className="text-gray-200 text-xs">Room Id: #{roomId}</h1>
+              <h1 className="text-gray-200 text-xs">Room Id: #{roomId}</h1>
               <label className="text-gray-400 text-xs">Username</label>
               <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-lg px-3 py-2">
                 <User size={16} />
@@ -44,7 +61,7 @@ export const SideBar = () => {
               </div>
               <div className="w-full flex p-2 justify-center">
                 <button
-                  onClick={() => setShow(!show)} className="p-2 w-full flex justify-center rounded-lg text-sm font-bold bg-blue-500 focus:bg-blue-600">
+                  onClick={() => HandleJoin} className="p-2 w-full flex justify-center rounded-lg text-sm font-bold bg-blue-500 focus:bg-blue-600">
                   Create/Join Room
                 </button>
               </div>
