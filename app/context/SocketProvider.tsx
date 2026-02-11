@@ -47,7 +47,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     else if (ws_url.startsWith("http://")) ws_url = ws_url.replace(/^http:\/\//, "ws://");
 
     console.log("join room started to connect")
-    SocketRef.current = new WebSocket(`ws://localhost:5000`);
+    SocketRef.current = new WebSocket(`${ws_url}`);
     SocketRef.current.onopen = () => {
       console.log("Web socket connected");
     };

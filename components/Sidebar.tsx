@@ -36,11 +36,16 @@ export const SideBar = () => {
       }
       setRoomId(formData.roomId);
       setusername(formData.username);
-      const connection = new WebSocket('ws://localhost:5000')
-      if (connection.readyState === 1) {
+        let ws_url = process.env.NEXT_PUBLIC_BACKEND_URL ||
+      (typeof window !== "undefined" ? window.location.origin : "");
+    if (ws_url.startsWith("https://")) ws_url = ws_url.replace(/^https:\/\//, "wss://");
+    else if (ws_url.startsWith("http://")) ws_url = ws_url.replace(/^http:\/\//, "ws://");
+
+      const connection = new WebSocket(`${ws_url}`)
+      connection.onopen = ()=> {
         const msgstr = JSON.stringify(MessageObj);
         connection.send(msgstr);
-      }
+    }
       connection.onmessage = function (event) {
         console.log("Event Data", event.data);
       }
