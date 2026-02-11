@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "bun run web_socket.ts",
+    "start": "bun start",
     "lint": "eslint"
   },
   "dependencies": {
