@@ -6,6 +6,7 @@ import { isShapeHit } from "./Eraser";
 import { CanvasDrawer } from "@/lib/CanvasHelpers/CanvasClass";
 import { useSocket } from "../context/SocketProvider";
 import { useShapeStore } from "../context/useShapeStore";
+import { Toaster } from "react-hot-toast";
 
 const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -148,8 +149,11 @@ const Canvas = () => {
     }
     finalShape.owner = UserName;
     SetShapes(finalShape);
-    console.log("Final message is send", finalShape);
-    socket.sendMessage(JSON.stringify(finalShape));
+    socket.sendMessage(JSON.stringify({
+      type: "message",
+      content: finalShape,
+      sender: UserName
+    }));
     currentPathRef.current = [];
   }
 
@@ -259,6 +263,7 @@ const Canvas = () => {
   };
   return (
     <div className=" absolute inset-0 touch-none">
+      <div><Toaster /></div>
       <canvas
         ref={canvasRef}
         id="canvas"
@@ -306,3 +311,4 @@ const Canvas = () => {
 };
 
 export default Canvas;
+

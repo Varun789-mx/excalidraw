@@ -1,28 +1,56 @@
 import { useShapeStore } from "@/app/context/useShapeStore";
 import { Link, Menu, User } from "lucide-react";
-import { useState } from "react"
+import { ChangeEvent, useState } from "react"
+import toast from "react-hot-toast";
 
 export const SideBar = () => {
   const [show, setShow] = useState(false);
   const setRoomId = useShapeStore((state) => state.setroom);
   const roomId = useShapeStore((state) => state.roomId);
+  const [loading, setloading] = useState(false);
+  const [formData, setformData] = useState({
+    roomId: "",
+    username: ""
+  })
   const setusername = useShapeStore((state) => state.setUserName);
 
 
-  const HandleJoin = async () => {
-    const MessageObj = {
-      type: "join",
-      room: "ninja",
-      message: "trying to connect from the frontend",
+  const HandleJoin = async (e: ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setloading(true);
+    const { name, value } = e.target;
+    setformData((prevdata) => ({
+      ...prevdata,
+      [name]: value,
+    }))
+
+    try {
+      if (!formData.username || !formData.roomId) {
+        toast.error("Invalid inputs");
+        return;
+      }
+      const MessageObj = {
+        type: "join",
+        room: "ninja",
+        message: "trying to connect from the frontend",
+      }
+      setRoomId(formData.roomId);
+      setusername(formData.username);
+      const connection = new WebSocket('ws://localhost:5000')
+      if (connection.readyState === 1) {
+        const msgstr = JSON.stringify(MessageObj);
+        connection.send(msgstr);
+      }
+      connection.onmessage = function (event) {
+        console.log("Event Data", event.data);
+      }
+      setloading(false);
+    } catch (error) {
+      toast.error(`Error in establishing connection ${error}`);
+      setloading(false);
     }
-    const connection = await new WebSocket('ws://localhost:5000')
-    if (connection.readyState === 1) {
-      const msgstr = JSON.stringify(MessageObj);
-      connection.send(msgstr);
-    }
-    connection.onmessage = function (event) {
-      console.log("Event Data", event.data);
-    }
+
+
   }
 
   return (
@@ -45,7 +73,9 @@ export const SideBar = () => {
               <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-lg px-3 py-2">
                 <User size={16} />
                 <input
-                  onChange={(e) => setusername(e.target.value)}
+                  name="username"
+                  value={formData.username}
+                  onChange={HandleJoin}
                   placeholder="Your name"
                   className="bg-transparent outline-none text-sm w-full"
                 />
@@ -54,14 +84,16 @@ export const SideBar = () => {
               <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-lg px-3 py-2">
                 <Link size={16} />
                 <input
+                  name="roomId"
+                  value={formData.roomId}
                   placeholder="abc123"
-                  onChange={(e) => setRoomId(e.target.value)}
+                  onChange={HandleJoin}
                   className="bg-transparent outline-none text-sm w-full"
                 />
               </div>
               <div className="w-full flex p-2 justify-center">
                 <button
-                  onClick={() => HandleJoin} className="p-2 w-full flex justify-center rounded-lg text-sm font-bold bg-blue-500 focus:bg-blue-600">
+                  onClick={() => setShow(!show)} className="p-2 w-full flex justify-center rounded-lg text-sm font-bold bg-blue-500 focus:bg-blue-600">
                   Create/Join Room
                 </button>
               </div>
