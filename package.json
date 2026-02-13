@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tsx web_socket.ts",
+    "dev": "next dev",
     "build": "next build",
     "start": "NODE_ENV=production node web_socket.ts",
     "lint": "eslint"

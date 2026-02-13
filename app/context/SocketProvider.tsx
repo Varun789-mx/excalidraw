@@ -6,7 +6,6 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState,
 } from "react";
 import { useShapeStore } from "./useShapeStore";
 
@@ -37,12 +36,13 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     },
     [SetShape],
   );
-  useEffect(() => {
-    if (!roomId) return;
-
-    SocketRef.current?.close();
-
-    // Resolve backend URL (env or fallback to current origin) and normalize to ws/wss
+  const ConnectSocket = () => {
+    if (
+      (SocketRef.current &&
+        SocketRef.current.readyState === WebSocket.CONNECTING) ||
+      (SocketRef.current && SocketRef.current.readyState === WebSocket.OPEN)
+    )
+      return;
     let ws_url =
       process.env.NEXT_PUBLIC_BACKEND_URL ||
       (typeof window !== "undefined" ? window.location.origin : "");
@@ -63,7 +63,14 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     };
     SocketRef.current.onclose = () => {
       console.log("web socket closed");
+      console.log("Trying to reconnect attempt");
+      setTimeout(ConnectSocket, 3000);
     };
+  };
+  useEffect(() => {
+    if (!roomId) return;
+    SocketRef.current?.close();
+    ConnectSocket();
 
     return () => {
       SocketRef.current?.close();
