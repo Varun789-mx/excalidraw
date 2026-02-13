@@ -43,7 +43,6 @@ export interface ShapeStoreprop {
 
 export interface ISOCKETTYPE {
     sendMessage: (msg: string) => void;
-    JoinRoom:(room:string,usrname:string)=>void;
     RcdMessage: (msg: {content:Shape}) => void;
 }
 export type Shape = |

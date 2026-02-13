@@ -29,43 +29,57 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
       SocketRef.current.send(msg);
     }
   }, []);
-  const RcdMessage = useCallback((msg: {content:Shape}) => {
-    const ShapeData = msg.content as Shape;
-    SetShape(ShapeData);
-  },
+  const RcdMessage = useCallback(
+    (msg: { content: Shape }) => {
+      const ShapeData = msg.content as Shape;
+      SetShape(ShapeData);
+    },
     [SetShape],
   );
-  function JoinRoom(roomId: string, username: string) {
-
+  const ConnectSocket = (roomId: string, username: string) => {
     if (!roomId || !username) {
       SocketRef.current?.close();
     }
-    // Resolve backend URL (env or fallback to current origin) and normalize to ws/wss
-    let ws_url = process.env.NEXT_PUBLIC_BACKEND_URL ||
+    if (
+      (SocketRef.current &&
+        SocketRef.current.readyState === WebSocket.CONNECTING) ||
+      (SocketRef.current && SocketRef.current.readyState === WebSocket.OPEN)
+    )
+      return;
+    let ws_url =
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
       (typeof window !== "undefined" ? window.location.origin : "");
-    if (ws_url.startsWith("https://")) ws_url = ws_url.replace(/^https:\/\//, "wss://");
-    else if (ws_url.startsWith("http://")) ws_url = ws_url.replace(/^http:\/\//, "ws://");
+    if (ws_url.startsWith("https://"))
+      ws_url = ws_url.replace(/^https:\/\//, "wss://");
+    else if (ws_url.startsWith("http://"))
+      ws_url = ws_url.replace(/^http:\/\//, "ws://");
 
-    console.log("join room started to connect")
     SocketRef.current = new WebSocket(`${ws_url}`);
     SocketRef.current.onopen = () => {
-      console.log("Web socket connected");
-    };
-    SocketRef.current.onopen = function () {
       if (roomId && username) {
         const InitialMessage = {
           type: "join",
           room: roomId,
-          message: "Hello guys from frontend"
-        }
+          message: "Hello guys from frontend",
+        };
         SocketRef.current?.send(JSON.stringify(InitialMessage));
       }
-    }
-  }
+    };
+    SocketRef.current.onmessage = function (event) {
+      const message = JSON.parse(event.data);
+      RcdMessage(message);
+    };
+    SocketRef.current.onclose = () => {
+      console.log("web socket closed");
+      console.log("Trying to reconnect attempt");
+      setTimeout(ConnectSocket, 3000);
+    };
+  };
 
   useEffect(() => {
-    JoinRoom(roomId, username);
+    ConnectSocket(roomId, username);
     if (!SocketRef.current) return;
+
     SocketRef.current.onmessage = function (event) {
       const message = JSON.parse(event.data);
       if (message.type !== "message" && !message.content) return;
@@ -80,7 +94,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     };
   }, [roomId, RcdMessage]);
   return (
-    <SocketContext.Provider value={{ sendMessage, RcdMessage, JoinRoom }}>
+    <SocketContext.Provider value={{ sendMessage, RcdMessage }}>
       {children}
     </SocketContext.Provider>
   );
