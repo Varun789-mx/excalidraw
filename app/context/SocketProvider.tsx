@@ -22,11 +22,17 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const roomId = useShapeStore((state) => state.roomId);
   const username = useShapeStore((state) => state.username);
+  const hasJoined = useRef(false);
   const SocketRef = useRef<WebSocket | null>(null);
   const SetShape = useShapeStore((state) => state.setShape);
   const sendMessage: ISOCKETTYPE["sendMessage"] = useCallback((msg: string) => {
-    if (SocketRef && SocketRef.current?.readyState === 1) {
+    if (
+      SocketRef?.current?.readyState === WebSocket.OPEN &&
+      hasJoined.current
+    ) {
       SocketRef.current.send(msg);
+    } else {
+      console.log("Socket not ready or connection is not established");
     }
   }, []);
   const RcdMessage = useCallback(
@@ -36,7 +42,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     },
     [SetShape],
   );
-  const ConnectSocket = (roomId: string, username: string) => {
+  const ConnectSocket = useCallback(() => {
     if (!roomId || !username) {
       SocketRef.current?.close();
     }
@@ -44,8 +50,9 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
       (SocketRef.current &&
         SocketRef.current.readyState === WebSocket.CONNECTING) ||
       (SocketRef.current && SocketRef.current.readyState === WebSocket.OPEN)
-    )
+    ) {
       return;
+    }
     let ws_url =
       process.env.NEXT_PUBLIC_BACKEND_URL ||
       (typeof window !== "undefined" ? window.location.origin : "");
@@ -54,7 +61,9 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     else if (ws_url.startsWith("http://"))
       ws_url = ws_url.replace(/^http:\/\//, "ws://");
 
-    SocketRef.current = new WebSocket(`${ws_url}`);
+    const socket = new WebSocket(`ws://localhost:5000`);
+    SocketRef.current = socket;
+    hasJoined.current = false;
     SocketRef.current.onopen = () => {
       if (roomId && username) {
         const InitialMessage = {
@@ -63,21 +72,35 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
           message: "Hello guys from frontend",
         };
         SocketRef.current?.send(JSON.stringify(InitialMessage));
+        hasJoined.current = true;
       }
     };
     SocketRef.current.onmessage = function (event) {
       const message = JSON.parse(event.data);
+      if (message.type === "Error") {
+        const InitialMessage = {
+          type: "join",
+          room: roomId,
+          message: "Hello guys from frontend",
+        };
+        SocketRef.current?.send(JSON.stringify(InitialMessage));
+        console.log("Initialmessage send");
+      }
       RcdMessage(message);
     };
     SocketRef.current.onclose = () => {
       console.log("web socket closed");
       console.log("Trying to reconnect attempt");
-      setTimeout(ConnectSocket, 3000);
+      hasJoined.current = false;
+
+      setTimeout(() => {
+        ConnectSocket();
+      }, 3000);
     };
-  };
+  }, [roomId, username, hasJoined]);
 
   useEffect(() => {
-    ConnectSocket(roomId, username);
+    ConnectSocket();
     if (!SocketRef.current) return;
 
     SocketRef.current.onmessage = function (event) {
@@ -90,7 +113,9 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     };
 
     return () => {
-      SocketRef.current?.close();
+      if (SocketRef.current?.readyState === WebSocket.OPEN) {
+        SocketRef.current?.close();
+      }
     };
   }, [roomId, RcdMessage]);
   return (
