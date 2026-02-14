@@ -13,6 +13,9 @@ export const useShapeStore = create<ShapeStoreprop>()(
                 setroom: (Id: string) => {
                     set({ roomId: Id });
                 },
+                getRoom: () => {
+                    return get().roomId;
+                },
                 setShape: (shapeObj: Shape) => {
                     set((state) => ({
                         Shapes: [...state.Shapes, shapeObj],
@@ -20,6 +23,9 @@ export const useShapeStore = create<ShapeStoreprop>()(
                 },
                 setUserName: (user: string) => {
                     set({ username: user })
+                },
+                getUserName: () => {
+                    return get().username;
                 },
                 DeleteShape: (filter: (shape: Shape) => boolean) => {
                     set((state) => ({

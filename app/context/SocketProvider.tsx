@@ -20,21 +20,29 @@ export const useSocket = () => {
 export const SocketProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const roomId = useShapeStore((state) => state.roomId);
-  const username = useShapeStore((state) => state.username);
+  const roomId = useShapeStore((state) => state.getRoom());
+  const username = useShapeStore((state) => state.getUserName());
   const hasJoined = useRef(false);
   const SocketRef = useRef<WebSocket | null>(null);
   const SetShape = useShapeStore((state) => state.setShape);
-  const sendMessage: ISOCKETTYPE["sendMessage"] = useCallback((msg: string) => {
-    if (
-      SocketRef?.current?.readyState === WebSocket.OPEN &&
-      hasJoined.current
-    ) {
-      SocketRef.current.send(msg);
-    } else {
-      console.log("Socket not ready or connection is not established");
-    }
-  }, []);
+  const sendMessage: ISOCKETTYPE["sendMessage"] = useCallback(
+    (msg: string) => {
+      if (
+        SocketRef?.current?.readyState === WebSocket.OPEN &&
+        hasJoined.current
+      ) {
+        const payload = {
+          type: "message",
+          content: JSON.parse(msg),
+          sender: username,
+        };
+        SocketRef.current.send(JSON.stringify(payload));
+      } else {
+        console.log("Socket not ready or connection is not established");
+      }
+    },
+    [username],
+  );
   const RcdMessage = useCallback(
     (msg: { content: Shape }) => {
       const ShapeData = msg.content as Shape;
@@ -65,12 +73,14 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     SocketRef.current = socket;
     hasJoined.current = false;
     SocketRef.current.onopen = () => {
+      console.log("Current roomId: ", roomId);
       if (roomId && username) {
         const InitialMessage = {
           type: "join",
           room: roomId,
           message: "Hello guys from frontend",
         };
+        console.log("InitialMessage: send", InitialMessage);
         SocketRef.current?.send(JSON.stringify(InitialMessage));
         hasJoined.current = true;
       }
@@ -78,13 +88,15 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     SocketRef.current.onmessage = function (event) {
       const message = JSON.parse(event.data);
       if (message.type === "Error") {
-        const InitialMessage = {
-          type: "join",
-          room: roomId,
-          message: "Hello guys from frontend",
-        };
-        SocketRef.current?.send(JSON.stringify(InitialMessage));
-        console.log("Initialmessage send");
+        if (roomId && username) {
+          const InitialMessage = {
+            type: "join",
+            room: roomId,
+            message: "Hello guys from frontend",
+          };
+          SocketRef.current?.send(JSON.stringify(InitialMessage));
+          console.log("Initialmessage send");
+        }
       }
       RcdMessage(message);
     };
@@ -101,23 +113,13 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     ConnectSocket();
-    if (!SocketRef.current) return;
-
-    SocketRef.current.onmessage = function (event) {
-      const message = JSON.parse(event.data);
-      if (message.type !== "message" && !message.content) return;
-      RcdMessage(message);
-    };
-    SocketRef.current.onclose = () => {
-      console.log("web socket closed");
-    };
 
     return () => {
       if (SocketRef.current?.readyState === WebSocket.OPEN) {
         SocketRef.current?.close();
       }
     };
-  }, [roomId, RcdMessage]);
+  }, [roomId, username]);
   return (
     <SocketContext.Provider value={{ sendMessage, RcdMessage }}>
       {children}

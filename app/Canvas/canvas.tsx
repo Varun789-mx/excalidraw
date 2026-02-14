@@ -167,7 +167,7 @@ const Canvas = () => {
     drawer.clear();
     if (!currentShape) return;
     currentShape.forEach((s) => {
-      switch (s.type) {
+      switch (s?.type) {
         case ShapeProp.rectangle:
           drawer.CreateRectangle(s.x, s.y, s.width, s.height, true);
           break;

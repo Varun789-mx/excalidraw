@@ -54,7 +54,7 @@ export const isShapeHit = (
     startY: number,
 ) => {
     const ERASER_RADIUS = 15;
-    switch (shapes.type) {
+    switch (shapes?.type) {
         case ShapeProp.rectangle:
             return hitRect(shapes, { x: startX, y: startY }, ERASER_RADIUS);
         case ShapeProp.circle:
