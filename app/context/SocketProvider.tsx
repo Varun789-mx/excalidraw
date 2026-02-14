@@ -69,7 +69,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     else if (ws_url.startsWith("http://"))
       ws_url = ws_url.replace(/^http:\/\//, "ws://");
 
-    const socket = new WebSocket(`ws://localhost:5000`);
+    const socket = new WebSocket(ws_url);
     SocketRef.current = socket;
     hasJoined.current = false;
     SocketRef.current.onopen = () => {
