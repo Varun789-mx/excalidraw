@@ -6,9 +6,9 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState,
 } from "react";
 import { useShapeStore } from "./useShapeStore";
+import { Content } from "next/font/google";
 
 export const SocketContext = React.createContext<ISOCKETTYPE | null>(null);
 
@@ -43,13 +43,12 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     },
     [username],
   );
-  const RcdMessage = useCallback(
+  const RcdMessage =
     (msg: { content: Shape }) => {
       const ShapeData = msg.content as Shape;
+      console.log(ShapeData, "ShapeData");
       SetShape(ShapeData);
-    },
-    [SetShape],
-  );
+    }
   const ConnectSocket = useCallback(() => {
     if (!roomId || !username) {
       SocketRef.current?.close();
@@ -87,6 +86,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
     };
     SocketRef.current.onmessage = function (event) {
       const message = JSON.parse(event.data);
+      console.log("Event data", event.data);
       if (message.type === "Error") {
         if (roomId && username) {
           const InitialMessage = {
@@ -98,7 +98,10 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({
           console.log("Initialmessage send");
         }
       }
-      RcdMessage(message);
+      if (message.type === 'message' && message.content) {
+        console.log("From on message sending to the rcdmessage", message);
+        RcdMessage(message.content);
+      }
     };
     SocketRef.current.onclose = () => {
       console.log("web socket closed");

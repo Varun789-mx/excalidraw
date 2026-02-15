@@ -17,9 +17,10 @@ export const useShapeStore = create<ShapeStoreprop>()(
                     return get().roomId;
                 },
                 setShape: (shapeObj: Shape) => {
-                    set((state) => ({
-                        Shapes: [...state.Shapes, shapeObj],
-                    }));
+                    console.log(shapeObj, "Shape Store state"),
+                        set((state) => ({
+                            Shapes: [...state.Shapes, shapeObj],
+                        }));
                 },
                 setUserName: (user: string) => {
                     set({ username: user })
