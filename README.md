@@ -34,7 +34,9 @@ Real-time WebSocket functionality will not operate correctly until this file is 
 
 Clone the repository:
 
-git clone [https://github.com/Varun789-mx/canvas-69.git](https://github.com/Varun789-mx/canvas-69.git?utm_source=chatgpt.com)cd canvas-69
+git clone [https://github.com/Varun789-mx/canvas-69.git](https://github.com/Varun789-mx/canvas-69.git?utm_source=chatgpt.com)
+
+cd canvas-69
 
 Install dependencies:
 
