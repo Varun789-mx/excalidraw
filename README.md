@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+🎨 Canvas-69
+============
 
-## Getting Started
+A collaborative canvas application built using **Next.js** and **TypeScript**.This project aims to provide a shared drawing space where multiple users can interact in real time.
 
-First, run the development server:
+🚀 Tech Stack
+-------------
 
-```bash
+*   Next.js
+    
+*   TypeScript
+    
+*   WebSockets
+    
+*   Zustand (State Management)
+    
+*   Node.js
+    
+
+📂 Project Structure
+--------------------
+
+canvas-69/│── app/ → Main Next.js application│── components/ → Reusable UI components│── lib/ → Utility and helper functions│── public/ → Static assets│── server.ts → WebSocket server (⚠ currently not working)│── package.json → Project dependencies and scripts│── tsconfig.json → TypeScript configuration
+
+⚠️ Important Notice
+-------------------
+
+The server.ts file is currently **not working Please use the https://github.com/Varun789-mx/wsbackend.git**.
+
+Real-time WebSocket functionality will not operate correctly until this file is fixed.If you plan to use or extend this project, backend functionality requires debugging and improvement.
+
+🛠 Installation
+---------------
+
+Clone the repository:
+
+git clone [https://github.com/Varun789-mx/canvas-69.git](https://github.com/Varun789-mx/canvas-69.git?utm_source=chatgpt.com)cd canvas-69
+
+Install dependencies:
+
+npm install
+
+Run the development server:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+📌 Available Scripts
+--------------------
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+*   npm run dev → Start development server
+    
+*   npm run build → Build project for production
+    
+*   npm run start → Start production server
+    
+*   npm run lint → Run ESLint
+    
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🎯 Current Status
+-----------------
 
-## Learn More
+*   Frontend setup completed
+    
+*   WebSocket backend incomplete / not functioning
+    
+*   No automated tests implemented
+    
 
-To learn more about Next.js, take a look at the following resources:
+📖 Future Improvements
+----------------------
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+*   Fix and properly implement server.ts
+    
+*   Add authentication system
+    
+*   Improve error handling
+    
+*   Add unit and integration tests
+    
+*   Enhance documentation
+    
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+🤝 Contributing
+---------------
 
-## Deploy on Vercel
+Contributions are welcome.Please open an issue before submitting a pull request.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+📜 License
+----------
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is open source and available under the MIT License.
